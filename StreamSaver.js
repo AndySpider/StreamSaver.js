@@ -18,7 +18,7 @@
   const ponyfill = global.WebStreamsPolyfill || {}
   const isSecureContext = global.isSecureContext
   // TODO: Must come up with a real detection test (#69)
-  let useBlobFallback = /constructor/i.test(global.HTMLElement) || !!global.safari || !!global.WebKitPoint
+//   let useBlobFallback = /constructor/i.test(global.HTMLElement) || !!global.safari || !!global.WebKitPoint
   const downloadStrategy = isSecureContext || 'MozAppearance' in document.documentElement.style
     ? 'iframe'
     : 'navigate'
@@ -28,7 +28,8 @@
     WritableStream: global.WritableStream || ponyfill.WritableStream,
     supported: true,
     version: { full: '2.0.5', major: 2, minor: 0, dot: 5 },
-    mitm: 'https://jimmywarting.github.io/StreamSaver.js/mitm.html?version=2.0.0'
+    mitm: 'https://jimmywarting.github.io/StreamSaver.js/mitm.html?version=2.0.0',
+    useBlobFallback = /constructor/i.test(global.HTMLElement) || !!global.safari || !!global.WebKitPoint    // export useBlobFallback as an option
   }
 
   /**
@@ -92,10 +93,10 @@
     // We can't look for service worker since it may still work on http
     new Response(new ReadableStream())
     if (isSecureContext && !('serviceWorker' in navigator)) {
-      useBlobFallback = true
+      streamSaver.useBlobFallback = true
     }
   } catch (err) {
-    useBlobFallback = true
+    streamSaver.useBlobFallback = true
   }
 
   test(() => {
@@ -154,7 +155,7 @@
     } else {
       opts = options || {}
     }
-    if (!useBlobFallback) {
+    if (!streamSaver.useBlobFallback) {
       loadTransporter()
 
       channel = new MessageChannel()
@@ -249,12 +250,12 @@
 
     let chunks = []
 
-    return (!useBlobFallback && ts && ts.writable) || new streamSaver.WritableStream({
+    return (!streamSaver.useBlobFallback && ts && ts.writable) || new streamSaver.WritableStream({
       write (chunk) {
         if (!(chunk instanceof Uint8Array)) {
           throw new TypeError('Can only wirte Uint8Arrays')
         }
-        if (useBlobFallback) {
+        if (streamSaver.useBlobFallback) {
           // Safari... The new IE6
           // https://github.com/jimmywarting/StreamSaver.js/issues/69
           //
@@ -283,7 +284,7 @@
         }
       },
       close () {
-        if (useBlobFallback) {
+        if (streamSaver.useBlobFallback) {
           const blob = new Blob(chunks, { type: 'application/octet-stream; charset=utf-8' })
           const link = document.createElement('a')
           link.href = URL.createObjectURL(blob)
