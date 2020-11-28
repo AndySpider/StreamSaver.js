@@ -18,7 +18,7 @@
   const ponyfill = global.WebStreamsPolyfill || {}
   const isSecureContext = global.isSecureContext
   // TODO: Must come up with a real detection test (#69)
-//   let useBlobFallback = /constructor/i.test(global.HTMLElement) || !!global.safari || !!global.WebKitPoint
+  let useBlobFallback = /constructor/i.test(global.HTMLElement) || !!global.safari || !!global.WebKitPoint
   const downloadStrategy = isSecureContext || 'MozAppearance' in document.documentElement.style
     ? 'iframe'
     : 'navigate'
@@ -29,7 +29,7 @@
     supported: true,
     version: { full: '2.0.5', major: 2, minor: 0, dot: 5 },
     mitm: 'https://jimmywarting.github.io/StreamSaver.js/mitm.html?version=2.0.0',
-    useBlobFallback: /constructor/i.test(global.HTMLElement) || !!global.safari || !!global.WebKitPoint    // export useBlobFallback as an option
+    useBlobFallback: useBlobFallback // export useBlobFallback as an option
   }
 
   /**
