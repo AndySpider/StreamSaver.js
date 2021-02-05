@@ -38,7 +38,11 @@ let scope = ''
 
 function registerWorker() {
   return navigator.serviceWorker.getRegistration('./').then(swReg => {
-    return swReg || navigator.serviceWorker.register('sw.js', { scope: './' })
+      if (swReg && /save\/$/.test(swReg.scope)) {   // distinguish from the pwa-sw.js which is registered at '/' scope, streamsaver sw.js is hosted under /save/ URL
+          return swReg;
+      } else {
+          return navigator.serviceWorker.register('sw.js', { scope: './' });    // here it's relative, will be registered at scope '/save'
+      }
   }).then(swReg => {
     const swRegTmp = swReg.installing || swReg.waiting
 
@@ -121,12 +125,12 @@ function onMessage (event) {
   data.pathname = data.pathname.replace(/^\/+/g, '')
 
   // remove protocol
-  let org = origin.replace(/(^\w+:|^)\/\//, '')
+  // let org = origin.replace(/(^\w+:|^)\/\//, '')  // no need to include the origin since it's dedicated and fixed
 
   // set the absolute pathname to the download url.
-  data.url = new URL(`${scope + org}/${data.pathname}`).toString()
+  data.url = new URL(`${scope}${data.pathname}`).toString() // scope has a trailihng slash
 
-  if (!data.url.startsWith(`${scope + org}/`)) {
+  if (!data.url.startsWith(`${scope}`)) {
     throw new TypeError('[StreamSaver] bad `data.pathname`')
   }
 
