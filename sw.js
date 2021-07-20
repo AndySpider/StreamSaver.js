@@ -100,6 +100,10 @@ self.onfetch = event => {
 
   let headers = new Headers(data.headers || {})
 
+  if (headers.has('Content-Type')) {
+    responseHeaders.set('Content-Type', headers.get('Content-Type'))
+  }
+
   if (headers.has('Content-Length')) {
     responseHeaders.set('Content-Length', headers.get('Content-Length'))
   }
