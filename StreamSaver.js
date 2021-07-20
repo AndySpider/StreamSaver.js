@@ -132,7 +132,7 @@
   function createWriteStream (filename, options, size) {
     let opts = {
       size: null,
-      mimeType: string,     // the content type
+      mimeType: undefined,     // the content type
       pathname: null,
       writableStrategy: undefined,
       readableStrategy: undefined
