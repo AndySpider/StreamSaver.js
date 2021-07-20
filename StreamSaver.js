@@ -132,6 +132,7 @@
   function createWriteStream (filename, options, size) {
     let opts = {
       size: null,
+      mimeType: string,     // the content type
       pathname: null,
       writableStrategy: undefined,
       readableStrategy: undefined
@@ -172,6 +173,10 @@
           'Content-Type': 'application/octet-stream; charset=utf-8',
           'Content-Disposition': "attachment; filename*=UTF-8''" + filename
         }
+      }
+
+      if (opts.mimeType) {
+          response.headers['Content-Type'] = opts.mimeType
       }
 
       if (opts.size) {
@@ -285,7 +290,7 @@
       },
       close () {
         if (streamSaver.useBlobFallback) {
-          const blob = new Blob(chunks, { type: 'application/octet-stream; charset=utf-8' })
+          const blob = new Blob(chunks, { type: opts.mimeType || 'application/octet-stream; charset=utf-8' })
           const link = document.createElement('a')
           link.href = URL.createObjectURL(blob)
           link.download = filename
